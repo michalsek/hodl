@@ -1,0 +1,56 @@
+{
+  "name": "local-filelockd-vscode",
+  "displayName": "Local File Lock Daemon",
+  "publisher": "senekapp",
+  "version": "0.1.0",
+  "description": "VS Code integration for the local file lock daemon.",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.97.0"
+  },
+  "main": "./dist/Extension.js",
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "locks",
+    "lease",
+    "coordination",
+    "daemon",
+    "codex"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "yarn workspace local-filelockd build && tsc --noEmit -p tsconfig.json",
+    "test": "vitest run src/tests",
+    "package": "yarn build && mkdir -p .artifacts && vsce package --out .artifacts/local-filelockd-vscode.vsix"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "Local File Lock Daemon",
+      "properties": {
+        "localFileLock.socketPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional override for the local file lock daemon Unix socket path."
+        },
+        "localFileLock.ttlMs": {
+          "type": "number",
+          "default": 30000,
+          "minimum": 5000,
+          "description": "Requested lease TTL in milliseconds."
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.1",
+    "@types/vscode": "^1.97.0",
+    "@vscode/vsce": "^3.6.2",
+    "typescript": "~5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "local-filelockd",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Machine-wide local file lock daemon for lease-based coordination on macOS.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./protocol": {
+      "types": "./dist/protocol/index.d.ts",
+      "default": "./dist/protocol/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "filelockctl": "./dist/cli/Filelockctl.js",
+    "filelockd": "./dist/cli/Filelockd.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "tsx src/cli/Filelockd.ts",
+    "dev": "tsx watch src/cli/Filelockd.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run src/tests"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.1",
+    "tsx": "^4.20.6",
+    "typescript": "~5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
