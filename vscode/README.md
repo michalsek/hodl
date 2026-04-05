@@ -5,28 +5,29 @@ VS Code extension for the `local-filelockd` daemon.
 ## Build
 
 ```sh
-cd /Users/michalsek/Documents/home/senekapp
-yarn workspace local-filelockd-vscode build
+cd vscode
+yarn install
+yarn build
 ```
 
 ## Package
 
 ```sh
-cd /Users/michalsek/Documents/home/senekapp
-yarn workspace local-filelockd-vscode package
+cd vscode
+yarn package
 ```
 
-The generated `.vsix` is written into `apps/daemon/vscode/.artifacts/`.
+The generated `.vsix` is written into `vscode/.artifacts/`.
 
 ## Install The VSIX
 
 ```sh
-code --install-extension /Users/michalsek/Documents/home/senekapp/apps/daemon/vscode/.artifacts/local-filelockd-vscode.vsix
+code --install-extension /absolute/path/to/vscode/.artifacts/local-filelockd-vscode.vsix
 ```
 
 ## Test Locally
 
-1. Start the daemon with `yarn workspace local-filelockd start`
+1. Start the daemon with `filelockd`
 2. Install the packaged VSIX
 3. Open a file-backed workspace in VS Code
 4. Edit a file and verify the daemon acquires and renews a lease

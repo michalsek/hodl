@@ -21,19 +21,19 @@ How to talk to the daemon:
 Required command flow:
 
 - Acquire before writing:
-  `yarn workspace local-filelockd exec filelockctl acquire --path /absolute/path/to/file --owner-type agent --owner-id <task-or-thread-id> --session-id <unique-session-id>`
+  `filelockctl acquire --path /absolute/path/to/file --owner-type agent --owner-id <task-or-thread-id> --session-id <unique-session-id>`
 - If the acquire response contains `"outcome": "acquired"`, store the returned `token` and proceed.
 - If the acquire response contains `"outcome": "denied"`, do not write the file. Either fail fast or retry later according to the parent task policy.
 - Renew during long edits:
-  `yarn workspace local-filelockd exec filelockctl renew --token <token>`
+  `filelockctl renew --token <token>`
 - Release immediately after the write is finished:
-  `yarn workspace local-filelockd exec filelockctl release --token <token>`
+  `filelockctl release --token <token>`
 - Inspect a file without acquiring:
-  `yarn workspace local-filelockd exec filelockctl status --path /absolute/path/to/file`
+  `filelockctl status --path /absolute/path/to/file`
 - Wait for changes if the parent task explicitly allows waiting:
-  `yarn workspace local-filelockd exec filelockctl subscribe --path /absolute/path/to/file`
+  `filelockctl subscribe --path /absolute/path/to/file`
   or
-  `yarn workspace local-filelockd exec filelockctl subscribe --prefix /absolute/path/prefix`
+  `filelockctl subscribe --prefix /absolute/path/prefix`
 
 Expected acquire responses:
 
@@ -87,12 +87,14 @@ Error handling:
 
 ## CLI Quickstart
 
-- Start the daemon: `yarn workspace local-filelockd start`
+- Install dependencies: `yarn install`
+- Build the package: `yarn build`
+- Start the daemon: `filelockd`
 - Open the dashboard: visit the `dashboard_url` printed on startup, or use `http://127.0.0.1:4319` by default
-- Acquire a lock: `yarn workspace local-filelockd exec filelockctl acquire --path /absolute/path --owner-type agent --owner-id task --session-id session-1`
-- Renew a lock: `yarn workspace local-filelockd exec filelockctl renew --token <token>`
-- Release a lock: `yarn workspace local-filelockd exec filelockctl release --token <token>`
-- Check status: `yarn workspace local-filelockd exec filelockctl status --path /absolute/path`
+- Acquire a lock: `filelockctl acquire --path /absolute/path --owner-type agent --owner-id task --session-id session-1`
+- Renew a lock: `filelockctl renew --token <token>`
+- Release a lock: `filelockctl release --token <token>`
+- Check status: `filelockctl status --path /absolute/path`
 
 ## Protocol Notes
 
