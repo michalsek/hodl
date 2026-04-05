@@ -27,7 +27,7 @@ code --install-extension /absolute/path/to/vscode/.artifacts/hodl-vscode-plugin.
 
 ## Test Locally
 
-1. Start the daemon with `filelockd`
+1. Start the daemon with `hodl`
 2. Install the packaged VSIX
 3. Open a file-backed workspace in VS Code
 4. Edit a file and verify the daemon acquires and renews a lease

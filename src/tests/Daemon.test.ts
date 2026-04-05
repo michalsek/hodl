@@ -188,11 +188,17 @@ describe('hodl daemon', () => {
     });
 
     const htmlResponse = await fetch(`${dashboard.url}/`);
+    const cssResponse = await fetch(`${dashboard.url}/page/index.css`);
+    const jsResponse = await fetch(`${dashboard.url}/page/index.js`);
     const apiResponse = await fetch(`${dashboard.url}/api/locks`);
     const apiPayload = (await apiResponse.json()) as { locks: Array<{ canonical_path: string }> };
 
     expect(htmlResponse.status).toBe(200);
-    await expect(htmlResponse.text()).resolves.toContain('Live File Locks');
+    await expect(htmlResponse.text()).resolves.toContain('/page/index.js');
+    expect(cssResponse.status).toBe(200);
+    await expect(cssResponse.text()).resolves.toContain('.hero');
+    expect(jsResponse.status).toBe(200);
+    await expect(jsResponse.text()).resolves.toContain('void bootstrap()');
     expect(apiResponse.status).toBe(200);
     expect(apiPayload.locks).toEqual(
       expect.arrayContaining([
@@ -207,7 +213,7 @@ describe('hodl daemon', () => {
 async function startTestDaemon(options: { socketPath?: string } = {}) {
   const socketPath =
     options.socketPath ??
-    path.join(await fs.mkdtemp(path.join(os.tmpdir(), 'filelockd-sock-')), 'daemon.sock');
+    path.join(await fs.mkdtemp(path.join(os.tmpdir(), 'hodl-sock-')), 'daemon.sock');
   await fs.mkdir(path.dirname(socketPath), { recursive: true });
   await fs.rm(socketPath, { force: true });
   const leaseManager = new LeaseManager({
@@ -238,7 +244,7 @@ async function startTestDaemon(options: { socketPath?: string } = {}) {
 }
 
 async function createFile(relativePath: string, contents: string): Promise<string> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'filelockd-file-'));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'hodl-file-'));
   const filePath = path.join(root, relativePath);
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, contents, 'utf8');
@@ -247,7 +253,7 @@ async function createFile(relativePath: string, contents: string): Promise<strin
 }
 
 async function createDirectory(relativePath: string): Promise<string> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'filelockd-dir-'));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'hodl-dir-'));
   const directoryPath = path.join(root, relativePath);
   await fs.mkdir(directoryPath, { recursive: true });
 

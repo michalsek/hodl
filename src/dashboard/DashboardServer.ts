@@ -6,7 +6,7 @@ import { URL } from 'node:url';
 
 import type { LeaseManager } from '../daemon/LeaseManager.js';
 import { SseSink } from '../ipc/SseServer.js';
-import { renderDashboardHtml } from './DashboardHtml.js';
+import { readDashboardPageAsset, renderDashboardHtml } from './DashboardPage.js';
 
 export interface DashboardServerOptions {
   leaseManager: LeaseManager;
@@ -83,8 +83,20 @@ async function routeDashboardRequest(
     response.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
     });
-    response.end(renderDashboardHtml());
+    response.end(await renderDashboardHtml());
     return;
+  }
+
+  if (request.method === 'GET' && url.pathname.startsWith('/page/')) {
+    const asset = await readDashboardPageAsset(url.pathname);
+
+    if (asset != null) {
+      response.writeHead(200, {
+        'Content-Type': asset.contentType,
+      });
+      response.end(asset.body);
+      return;
+    }
   }
 
   if (request.method === 'GET' && url.pathname === '/api/locks') {

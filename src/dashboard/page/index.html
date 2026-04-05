@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HODL - Dashboard</title>
+    <link rel="stylesheet" href="/page/index.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Multi-Agent File Leasing</p>
+          <h1>HODL</h1>
+          <p class="lede">
+            Human-Orchestrated Distributed Locks<br />
+            <span class="ledge-small">for multi-agent systems</span>
+          </p>
+        </div>
+      </header>
+
+      <section class="stats-grid" aria-label="Dashboard overview">
+        <article class="stat-card stat-card--violet">
+          <p class="stat-value" id="count-badge">0</p>
+          <p class="stat-label">Active locks</p>
+        </article>
+        <article class="stat-card stat-card--blue">
+          <p class="stat-value" id="updated-badge">never</p>
+          <p class="stat-label">Last update</p>
+        </article>
+        <article class="stat-card stat-card--amber">
+          <p class="stat-value" id="status-badge">connecting</p>
+          <p class="stat-label">Stream status</p>
+        </article>
+        <article class="stat-card stat-card--red">
+          <p class="stat-value stat-value--code" id="epoch-badge">loading</p>
+          <p class="stat-label">Epoch</p>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Current Leases</h2>
+          <p id="empty-hint">Waiting for lock data.</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>Owner</th>
+              <th>Lease</th>
+              <th>TTL</th>
+            </tr>
+          </thead>
+          <tbody id="locks-body">
+            <tr>
+              <td class="empty" colspan="4">No active locks.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <script type="module" src="/page/index.js"></script>
+  </body>
+</html>

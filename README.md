@@ -14,26 +14,26 @@ You are operating in a shared working tree with a local file-lock daemon as the 
 How to talk to the daemon:
 
 - Default Unix socket path: `/tmp/hodl-<uid>.sock`
-- Preferred interface for agents in this repo: `filelockctl`
+- Preferred interface for agents in this repo: `hodlctl`
 - Socket override: pass `--socket-path /custom/path.sock` to every command if the daemon is not using the default socket.
 - Commands return JSON on stdout. Parse that JSON and use the returned `token` from a successful acquire as the input to `renew` and `release`.
 
 Required command flow:
 
 - Acquire before writing:
-  `filelockctl acquire --path /absolute/path/to/file --owner-type agent --owner-id <task-or-thread-id> --session-id <unique-session-id>`
+  `hodlctl acquire --path /absolute/path/to/file --owner-type agent --owner-id <task-or-thread-id> --session-id <unique-session-id>`
 - If the acquire response contains `"outcome": "acquired"`, store the returned `token` and proceed.
 - If the acquire response contains `"outcome": "denied"`, do not write the file. Either fail fast or retry later according to the parent task policy.
 - Renew during long edits:
-  `filelockctl renew --token <token>`
+  `hodlctl renew --token <token>`
 - Release immediately after the write is finished:
-  `filelockctl release --token <token>`
+  `hodlctl release --token <token>`
 - Inspect a file without acquiring:
-  `filelockctl status --path /absolute/path/to/file`
+  `hodlctl status --path /absolute/path/to/file`
 - Wait for changes if the parent task explicitly allows waiting:
-  `filelockctl subscribe --path /absolute/path/to/file`
+  `hodlctl subscribe --path /absolute/path/to/file`
   or
-  `filelockctl subscribe --prefix /absolute/path/prefix`
+  `hodlctl subscribe --prefix /absolute/path/prefix`
 
 Expected acquire responses:
 
@@ -89,12 +89,12 @@ Error handling:
 
 - Install dependencies: `yarn install`
 - Build the package: `yarn build`
-- Start the daemon: `filelockd`
+- Start the daemon: `hodl`
 - Open the dashboard: visit the `dashboard_url` printed on startup, or use `http://127.0.0.1:4319` by default
-- Acquire a lock: `filelockctl acquire --path /absolute/path --owner-type agent --owner-id task --session-id session-1`
-- Renew a lock: `filelockctl renew --token <token>`
-- Release a lock: `filelockctl release --token <token>`
-- Check status: `filelockctl status --path /absolute/path`
+- Acquire a lock: `hodlctl acquire --path /absolute/path --owner-type agent --owner-id task --session-id session-1`
+- Renew a lock: `hodlctl renew --token <token>`
+- Release a lock: `hodlctl release --token <token>`
+- Check status: `hodlctl status --path /absolute/path`
 
 ## Protocol Notes
 

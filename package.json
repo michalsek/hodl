@@ -19,17 +19,17 @@
   },
   "types": "./dist/index.d.ts",
   "bin": {
-    "filelockctl": "./dist/cli/Filelockctl.js",
-    "filelockd": "./dist/cli/Filelockd.js"
+    "hodl": "./dist/cli/Hodl.js",
+    "hodlctl": "./dist/cli/Hodlctl.js"
   },
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "start": "tsx src/cli/Filelockd.ts",
-    "dev": "tsx watch src/cli/Filelockd.ts",
+    "build": "tsc -p tsconfig.json && node ./scripts/CopyDashboardPage.mjs",
+    "start": "tsx src/cli/Hodl.ts",
+    "dev": "tsx watch src/cli/Hodl.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run src/tests"
   },
