@@ -1,6 +1,6 @@
-# local-filelockd-vscode
+# hodl-vscode-plugin
 
-VS Code extension for the `local-filelockd` daemon.
+VS Code extension for the `hodl` daemon.
 
 ## Build
 
@@ -22,7 +22,7 @@ The generated `.vsix` is written into `vscode/.artifacts/`.
 ## Install The VSIX
 
 ```sh
-code --install-extension /absolute/path/to/vscode/.artifacts/local-filelockd-vscode.vsix
+code --install-extension /absolute/path/to/vscode/.artifacts/hodl-vscode-plugin.vsix
 ```
 
 ## Test Locally

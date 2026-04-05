@@ -18,7 +18,7 @@ afterEach(async () => {
   }
 });
 
-describe('local-filelockd daemon', () => {
+describe('hodl daemon', () => {
   it('grants only one live lease for the same absolute path', async () => {
     const filePath = await createFile('repo-a/example.ts', 'const a = 1;\n');
     const daemon = await startTestDaemon();

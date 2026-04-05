@@ -1,6 +1,6 @@
-# local-filelockd
+# hodl
 
-`local-filelockd` is a machine-wide local daemon that coordinates lease-based file locks using canonical absolute paths. It is the single source of truth for acquire, renew, release, status, and event delivery.
+`hodl` is a machine-wide local daemon that coordinates lease-based file locks using canonical absolute paths. It is the single source of truth for acquire, renew, release, status, and event delivery.
 
 ## Agent Instructions
 
@@ -13,7 +13,7 @@ You are operating in a shared working tree with a local file-lock daemon as the 
 
 How to talk to the daemon:
 
-- Default Unix socket path: `/tmp/local-filelockd-<uid>.sock`
+- Default Unix socket path: `/tmp/hodl-<uid>.sock`
 - Preferred interface for agents in this repo: `filelockctl`
 - Socket override: pass `--socket-path /custom/path.sock` to every command if the daemon is not using the default socket.
 - Commands return JSON on stdout. Parse that JSON and use the returned `token` from a successful acquire as the input to `renew` and `release`.
@@ -46,11 +46,11 @@ Direct protocol option:
 
 - If the CLI is unavailable, call the daemon over HTTP on the Unix socket.
 - Acquire:
-  `curl --unix-socket /tmp/local-filelockd-<uid>.sock -X POST http://localhost/v1/locks/acquire -H 'Content-Type: application/json' -d '{"path":"/absolute/path/to/file","owner_type":"agent","owner_id":"task-1","session_id":"session-1"}'`
+  `curl --unix-socket /tmp/hodl-<uid>.sock -X POST http://localhost/v1/locks/acquire -H 'Content-Type: application/json' -d '{"path":"/absolute/path/to/file","owner_type":"agent","owner_id":"task-1","session_id":"session-1"}'`
 - Renew:
-  `curl --unix-socket /tmp/local-filelockd-<uid>.sock -X POST http://localhost/v1/locks/renew -H 'Content-Type: application/json' -d '{"token":"<token>"}'`
+  `curl --unix-socket /tmp/hodl-<uid>.sock -X POST http://localhost/v1/locks/renew -H 'Content-Type: application/json' -d '{"token":"<token>"}'`
 - Release:
-  `curl --unix-socket /tmp/local-filelockd-<uid>.sock -X POST http://localhost/v1/locks/release -H 'Content-Type: application/json' -d '{"token":"<token>"}'`
+  `curl --unix-socket /tmp/hodl-<uid>.sock -X POST http://localhost/v1/locks/release -H 'Content-Type: application/json' -d '{"token":"<token>"}'`
 
 Rules:
 
@@ -100,4 +100,4 @@ Error handling:
 
 - Locks are keyed by canonical absolute path.
 - Lease expiry is authoritative. Notifications are hints only.
-- The default socket path is `/tmp/local-filelockd-<uid>.sock`.
+- The default socket path is `/tmp/hodl-<uid>.sock`.

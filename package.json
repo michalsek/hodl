@@ -1,8 +1,12 @@
 {
-  "name": "local-filelockd",
+  "name": "hodl",
   "version": "0.1.0",
   "type": "module",
   "description": "Machine-wide local file lock daemon for lease-based coordination on macOS.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michalsek/hodl.git"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

@@ -1,10 +1,19 @@
 {
-  "name": "local-filelockd-vscode",
-  "displayName": "Local File Lock Daemon",
+  "name": "hodl-vscode-plugin",
+  "displayName": "Hodl",
   "publisher": "senekapp",
   "version": "0.1.0",
-  "description": "VS Code integration for the local file lock daemon.",
+  "description": "VS Code integration for the hodl file lock daemon.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michalsek/hodl.git",
+    "directory": "vscode"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -21,9 +30,9 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "yarn workspace local-filelockd build && tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run src/tests",
-    "package": "yarn build && mkdir -p .artifacts && vsce package --out .artifacts/local-filelockd-vscode.vsix"
+    "package": "yarn build && node ./scripts/PackageVsix.mjs"
   },
   "activationEvents": [
     "onStartupFinished"

@@ -30,10 +30,9 @@ export class SocketRuntime {
         ? String(process.getuid())
         : (process.env.USER ?? 'user');
 
-    this.socketPath = options.socketPath ?? path.join('/tmp', `local-filelockd-${userId}.sock`);
+    this.socketPath = options.socketPath ?? path.join('/tmp', `hodl-${userId}.sock`);
     this.stateDirectory =
-      options.stateDirectory ??
-      path.join(os.homedir(), 'Library', 'Application Support', 'local-filelockd');
+      options.stateDirectory ?? path.join(os.homedir(), 'Library', 'Application Support', 'hodl');
     this.daemonEpoch = options.daemonEpoch ?? randomUUID();
   }
 

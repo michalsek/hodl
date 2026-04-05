@@ -123,5 +123,5 @@ function defaultSocketPath(): string {
   const userId =
     typeof process.getuid === 'function' ? String(process.getuid()) : (process.env.USER ?? 'user');
 
-  return path.join('/tmp', `local-filelockd-${userId}.sock`);
+  return path.join('/tmp', `hodl-${userId}.sock`);
 }
