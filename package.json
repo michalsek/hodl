@@ -1,6 +1,6 @@
 {
   "name": "agent-hodl",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "license": "MIT",
   "author": "Michal Sek (https://github.com/michalsek)",
@@ -39,10 +39,7 @@
   },
   "types": "./dist/index.d.ts",
   "bin": {
-    "agent-hodl": "./dist/cli/Hodl.js",
-    "agent-hodlctl": "./dist/cli/Hodlctl.js",
-    "hodl": "./dist/cli/Hodl.js",
-    "hodlctl": "./dist/cli/Hodlctl.js"
+    "agent-hodl": "./dist/cli/Hodl.js"
   },
   "files": [
     "dist",
