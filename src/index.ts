@@ -1,5 +1,5 @@
 export * from './client/NodeClient.js';
-export * from './dashboard/DashboardServer.js';
+export * from './dashboard/InkDashboard.js';
 export * from './daemon/LeaseManager.js';
 export * from './ipc/HttpServer.js';
 export * from './ipc/SocketRuntime.js';

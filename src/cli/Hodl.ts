@@ -4,12 +4,29 @@ import { createFileLockHttpServer } from '../ipc/HttpServer.js';
 import { SocketRuntime } from '../ipc/SocketRuntime.js';
 import { LeaseManager } from '../daemon/LeaseManager.js';
 import { ExpiryLoop } from '../daemon/ExpiryLoop.js';
-import { createDashboardServer } from '../dashboard/DashboardServer.js';
+import { runInkDashboard } from '../dashboard/InkDashboard.js';
+import { runHodlctl } from './Hodlctl.js';
 
 async function main(): Promise<void> {
-  const socketPath = readOptionalFlag('--socket-path');
-  const dashboardHost = readOptionalFlag('--dashboard-host');
-  const dashboardPort = readOptionalNumberFlag('--dashboard-port');
+  const argv = process.argv.slice(2);
+  const command = argv[0];
+
+  if (command === 'help' || command === '--help' || command === '-h') {
+    printHelp();
+    return;
+  }
+
+  if (command === 'ctl') {
+    await runHodlctl(argv.slice(1));
+    return;
+  }
+
+  if (command != null && !command.startsWith('-')) {
+    throw new Error(`Unknown command: ${command}\n\n${getHelpText()}`);
+  }
+
+  const socketPath = readOptionalFlag(argv, '--socket-path');
+  const dashboardEnabled = argv.includes('--dashboard');
   const runtime = new SocketRuntime({ socketPath });
   const runtimeInfo = await runtime.prepare();
   const leaseManager = new LeaseManager({
@@ -20,11 +37,6 @@ async function main(): Promise<void> {
     leaseManager,
     socketPath: runtimeInfo.socketPath,
   });
-  const dashboard = await createDashboardServer({
-    leaseManager,
-    host: dashboardHost,
-    port: dashboardPort,
-  });
 
   await new Promise<void>((resolve, reject) => {
     app.server.once('error', reject);
@@ -32,29 +44,50 @@ async function main(): Promise<void> {
   });
 
   expiryLoop.start();
+  let isShuttingDown = false;
+
+  const shutdown = async () => {
+    if (isShuttingDown) {
+      return;
+    }
+
+    isShuttingDown = true;
+    expiryLoop.stop();
+    await app.close();
+    await runtime.cleanup(runtimeInfo.metadataPath);
+  };
+
+  if (dashboardEnabled) {
+    if (!process.stdout.isTTY || !process.stdin.isTTY) {
+      throw new Error('The terminal dashboard requires an interactive TTY.');
+    }
+
+    await runInkDashboard({
+      socketPath: runtimeInfo.socketPath,
+      daemonEpoch: runtimeInfo.daemonEpoch,
+    });
+    await shutdown();
+    return;
+  }
+
   console.log(
     JSON.stringify(
       {
         status: 'ok',
         daemon_epoch: runtimeInfo.daemonEpoch,
         socket_path: runtimeInfo.socketPath,
-        dashboard_url: dashboard.url,
       },
       null,
       2
     )
   );
 
-  const shutdown = async () => {
-    expiryLoop.stop();
-    await dashboard.close();
-    await app.close();
-    await runtime.cleanup(runtimeInfo.metadataPath);
-    process.exit(0);
-  };
-
-  process.once('SIGINT', () => void shutdown());
-  process.once('SIGTERM', () => void shutdown());
+  process.once('SIGINT', () => {
+    void shutdown().finally(() => process.exit(0));
+  });
+  process.once('SIGTERM', () => {
+    void shutdown().finally(() => process.exit(0));
+  });
 }
 
 void main().catch((error) => {
@@ -62,22 +95,33 @@ void main().catch((error) => {
   process.exit(1);
 });
 
-function readOptionalFlag(flagName: string): string | undefined {
-  const flagIndex = process.argv.indexOf(flagName);
+function printHelp(): void {
+  console.log(getHelpText());
+}
+
+function getHelpText(): string {
+  return [
+    'Usage:',
+    '  agent-hodl',
+    '  agent-hodl help',
+    '  agent-hodl ctl <command> [options]',
+    '',
+    'Commands:',
+    '  ctl           Run the control client commands.',
+    '  help          Show this help message.',
+    '',
+    'Daemon Options:',
+    '  --socket-path <path>      Override the Unix socket path.',
+    '  --dashboard               Start the terminal dashboard.',
+  ].join('\n');
+}
+
+function readOptionalFlag(argv: string[], flagName: string): string | undefined {
+  const flagIndex = argv.indexOf(flagName);
 
   if (flagIndex < 0) {
     return undefined;
   }
 
-  return process.argv[flagIndex + 1];
-}
-
-function readOptionalNumberFlag(flagName: string): number | undefined {
-  const value = readOptionalFlag(flagName);
-
-  if (value == null) {
-    return undefined;
-  }
-
-  return Number.parseInt(value, 10);
+  return argv[flagIndex + 1];
 }

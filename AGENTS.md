@@ -1,30 +1,31 @@
 # Local File Lock Rules For Agents
 
 You are operating in a shared working tree with a local file-lock daemon as the only lock authority.
+Never revert any changes created not during your workflow.
 
 How to talk to the daemon:
 
 - Default Unix socket path: `/tmp/hodl-<uid>.sock`
-- Preferred interface for agents in this repo: `npx agent-hodlctl`
+- Preferred interface for agents in this repo: `npx agent-hodl ctl`
 - Socket override: pass `--socket-path /custom/path.sock` to every command if the daemon is not using the default socket.
 - Commands return JSON on stdout. Parse that JSON and use the returned `token` from a successful acquire as the input to `renew` and `release`.
 
 Required command flow:
 
 - Acquire before writing:
-  `npx agent-hodlctl acquire --path /absolute/path/to/file --owner-type agent --owner-id <task-or-thread-id> --session-id <unique-session-id>`
+  `npx agent-hodl ctl acquire --path /absolute/path/to/file --owner-type agent --owner-id <task-or-thread-id> --session-id <unique-session-id>`
 - If the acquire response contains `"outcome": "acquired"`, store the returned `token` and proceed.
 - If the acquire response contains `"outcome": "denied"`, do not write the file. Either fail fast or retry later according to the parent task policy.
 - Renew during long edits:
-  `npx agent-hodlctl renew --token <token>`
+  `npx agent-hodl ctl renew --token <token>`
 - Release immediately after the write is finished:
-  `npx agent-hodlctl release --token <token>`
+  `npx agent-hodl ctl release --token <token>`
 - Inspect a file without acquiring:
-  `npx agent-hodlctl status --path /absolute/path/to/file`
+  `npx agent-hodl ctl status --path /absolute/path/to/file`
 - Wait for changes if the parent task explicitly allows waiting:
-  `npx agent-hodlctl subscribe --path /absolute/path/to/file`
+  `npx agent-hodl ctl subscribe --path /absolute/path/to/file`
   or
-  `npx agent-hodlctl subscribe --prefix /absolute/path/prefix`
+  `npx agent-hodl ctl subscribe --prefix /absolute/path/prefix`
 
 Expected acquire responses:
 

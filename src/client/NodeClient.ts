@@ -5,6 +5,7 @@ import type {
   AcquireResponse,
   GetStatusResponse,
   HealthResponse,
+  ListLocksResponse,
   LockEvent,
   ReleaseResponse,
   RenewSuccessPayload,
@@ -62,6 +63,10 @@ export class NodeFileLockClient {
     const encodedPath = encodeURIComponent(path);
 
     return await this.requestJson<GetStatusResponse>('GET', `/v1/locks/status?path=${encodedPath}`);
+  }
+
+  async listLocks(): Promise<ListLocksResponse> {
+    return await this.requestJson<ListLocksResponse>('GET', '/v1/locks');
   }
 
   async subscribe(
@@ -132,10 +137,19 @@ export class NodeFileLockClient {
 
         streamClosed = true;
         streamRequest.destroy();
-        await this.requestJson<void>(
-          'DELETE',
-          `/v1/subscriptions/${encodeURIComponent(subscription.subscription_id)}`
-        );
+
+        try {
+          await this.requestJson<void>(
+            'DELETE',
+            `/v1/subscriptions/${encodeURIComponent(subscription.subscription_id)}`
+          );
+        } catch (error) {
+          if (isIgnorableDisconnect(error)) {
+            return;
+          }
+
+          throw error;
+        }
       },
     };
   }
@@ -209,4 +223,15 @@ function parseSseEvent(rawMessage: string): LockEvent | null {
   }
 
   return JSON.parse(dataLines.join('\n')) as LockEvent;
+}
+
+function isIgnorableDisconnect(error: unknown): boolean {
+  return (
+    error instanceof NodeClientError ||
+    (error instanceof Error &&
+      (error.message.includes('socket hang up') ||
+        'code' in error &&
+        typeof error.code === 'string' &&
+        (error.code === 'ECONNRESET' || error.code === 'ENOENT')))
+  );
 }

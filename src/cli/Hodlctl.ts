@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 
+import { pathToFileURL } from 'node:url';
+
 import { NodeFileLockClient } from '../client/NodeClient.js';
 import { SocketRuntime } from '../ipc/SocketRuntime.js';
 
-async function main(): Promise<void> {
-  const command = process.argv[2];
+export async function runHodlctl(argv: string[]): Promise<void> {
+  const command = argv[0];
 
   if (command == null) {
     throw new Error('A command is required.');
   }
 
   const client = new NodeFileLockClient({
-    socketPath: readOptionalFlag('--socket-path') ?? new SocketRuntime().getSocketPath(),
+    socketPath: readOptionalFlag(argv, '--socket-path') ?? new SocketRuntime().getSocketPath(),
   });
 
   switch (command) {
@@ -19,30 +21,30 @@ async function main(): Promise<void> {
       print(await client.health());
       return;
     case 'status':
-      print(await client.getStatus(readRequiredFlag('--path')));
+      print(await client.getStatus(readRequiredFlag(argv, '--path')));
       return;
     case 'acquire':
       print(
         await client.acquire({
-          path: readRequiredFlag('--path'),
-          owner_type: readRequiredFlag('--owner-type') as 'agent' | 'subagent' | 'vscode' | 'cli',
-          owner_id: readRequiredFlag('--owner-id'),
-          session_id: readRequiredFlag('--session-id'),
-          ttl_ms: readOptionalNumberFlag('--ttl-ms'),
+          path: readRequiredFlag(argv, '--path'),
+          owner_type: readRequiredFlag(argv, '--owner-type') as 'agent' | 'subagent' | 'vscode' | 'cli',
+          owner_id: readRequiredFlag(argv, '--owner-id'),
+          session_id: readRequiredFlag(argv, '--session-id'),
+          ttl_ms: readOptionalNumberFlag(argv, '--ttl-ms'),
         })
       );
       return;
     case 'renew':
-      print(await client.renew(readRequiredFlag('--token')));
+      print(await client.renew(readRequiredFlag(argv, '--token')));
       return;
     case 'release':
-      print(await client.release(readRequiredFlag('--token')));
+      print(await client.release(readRequiredFlag(argv, '--token')));
       return;
     case 'subscribe': {
       const handle = await client.subscribe(
         {
-          path: readOptionalFlag('--path'),
-          prefix: readOptionalFlag('--prefix'),
+          path: readOptionalFlag(argv, '--path'),
+          prefix: readOptionalFlag(argv, '--prefix'),
         },
         (event) => {
           console.log(JSON.stringify(event));
@@ -62,17 +64,23 @@ async function main(): Promise<void> {
   }
 }
 
-void main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-});
+async function main(): Promise<void> {
+  await runHodlctl(process.argv.slice(2));
+}
+
+if (isDirectExecution()) {
+  void main().catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  });
+}
 
 function print(payload: unknown): void {
   console.log(JSON.stringify(payload, null, 2));
 }
 
-function readRequiredFlag(flagName: string): string {
-  const value = readOptionalFlag(flagName);
+function readRequiredFlag(argv: string[], flagName: string): string {
+  const value = readOptionalFlag(argv, flagName);
 
   if (value == null || value.length === 0) {
     throw new Error(`Missing required flag: ${flagName}`);
@@ -81,22 +89,32 @@ function readRequiredFlag(flagName: string): string {
   return value;
 }
 
-function readOptionalFlag(flagName: string): string | undefined {
-  const flagIndex = process.argv.indexOf(flagName);
+function readOptionalFlag(argv: string[], flagName: string): string | undefined {
+  const flagIndex = argv.indexOf(flagName);
 
   if (flagIndex < 0) {
     return undefined;
   }
 
-  return process.argv[flagIndex + 1];
+  return argv[flagIndex + 1];
 }
 
-function readOptionalNumberFlag(flagName: string): number | undefined {
-  const value = readOptionalFlag(flagName);
+function readOptionalNumberFlag(argv: string[], flagName: string): number | undefined {
+  const value = readOptionalFlag(argv, flagName);
 
   if (value == null) {
     return undefined;
   }
 
   return Number.parseInt(value, 10);
+}
+
+function isDirectExecution(): boolean {
+  const entrypoint = process.argv[1];
+
+  if (entrypoint == null) {
+    return false;
+  }
+
+  return import.meta.url === pathToFileURL(entrypoint).href;
 }

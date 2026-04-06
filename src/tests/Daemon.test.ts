@@ -6,7 +6,6 @@ import { randomUUID } from 'node:crypto';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { NodeFileLockClient } from '../client/NodeClient.js';
-import { createDashboardServer } from '../dashboard/DashboardServer.js';
 import { LeaseManager } from '../daemon/LeaseManager.js';
 import { createFileLockHttpServer } from '../ipc/HttpServer.js';
 
@@ -166,41 +165,20 @@ describe('hodl daemon', () => {
     await subscription.close();
   });
 
-  it('serves a dashboard that lists live locks', async () => {
+  it('lists live locks over the daemon socket', async () => {
     const filePath = await createFile('repo-a/example.ts', 'const a = 1;\n');
-    const leaseManager = new LeaseManager({
-      daemonEpoch: randomUUID(),
-    });
-    const dashboard = await createDashboardServer({
-      leaseManager,
-      port: 0,
-    });
+    const daemon = await startTestDaemon();
 
-    activeDaemons.push(async () => {
-      await dashboard.close();
-    });
-
-    await leaseManager.acquire({
+    await daemon.client.acquire({
       path: filePath,
       owner_type: 'agent',
       owner_id: 'task-1',
       session_id: 'session-1',
     });
 
-    const htmlResponse = await fetch(`${dashboard.url}/`);
-    const cssResponse = await fetch(`${dashboard.url}/page/index.css`);
-    const jsResponse = await fetch(`${dashboard.url}/page/index.js`);
-    const apiResponse = await fetch(`${dashboard.url}/api/locks`);
-    const apiPayload = (await apiResponse.json()) as { locks: Array<{ canonical_path: string }> };
+    const locks = await daemon.client.listLocks();
 
-    expect(htmlResponse.status).toBe(200);
-    await expect(htmlResponse.text()).resolves.toContain('/page/index.js');
-    expect(cssResponse.status).toBe(200);
-    await expect(cssResponse.text()).resolves.toContain('.hero');
-    expect(jsResponse.status).toBe(200);
-    await expect(jsResponse.text()).resolves.toContain('void bootstrap()');
-    expect(apiResponse.status).toBe(200);
-    expect(apiPayload.locks).toEqual(
+    expect(locks.locks).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           canonical_path: await fs.realpath(filePath),

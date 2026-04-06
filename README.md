@@ -12,18 +12,30 @@ Start the daemon:
 npx agent-hodl
 ```
 
-The daemon prints structured JSON on startup, including the active Unix socket path and the dashboard URL. By default the dashboard is available at `http://127.0.0.1:4319`.
+Show command help:
+
+```sh
+npx agent-hodl help
+```
+
+Start the daemon with the terminal dashboard:
+
+```sh
+npx agent-hodl --dashboard
+```
+
+By default the dashboard is disabled. Without `--dashboard`, the daemon prints structured JSON on startup with the active Unix socket path.
 
 Check connectivity from another terminal:
 
 ```sh
-npx agent-hodlctl health
+npx agent-hodl ctl health
 ```
 
 Acquire a lease for a file before writing it:
 
 ```sh
-npx agent-hodlctl acquire \
+npx agent-hodl ctl acquire \
   --path /absolute/path/to/file \
   --owner-type agent \
   --owner-id task \
@@ -33,33 +45,32 @@ npx agent-hodlctl acquire \
 Renew the lease during long-running work:
 
 ```sh
-npx agent-hodlctl renew --token <token>
+npx agent-hodl ctl renew --token <token>
 ```
 
 Release the lease as soon as the write is finished:
 
 ```sh
-npx agent-hodlctl release --token <token>
+npx agent-hodl ctl release --token <token>
 ```
 
 Inspect the current holder for a path:
 
 ```sh
-npx agent-hodlctl status --path /absolute/path/to/file
+npx agent-hodl ctl status --path /absolute/path/to/file
 ```
 
 Subscribe to lock events for a file or path prefix:
 
 ```sh
-npx agent-hodlctl subscribe --path /absolute/path/to/file
-npx agent-hodlctl subscribe --prefix /absolute/path/prefix
+npx agent-hodl ctl subscribe --path /absolute/path/to/file
+npx agent-hodl ctl subscribe --prefix /absolute/path/prefix
 ```
 
 Optional daemon flags:
 
 - `--socket-path` overrides the default socket path.
-- `--dashboard-host` overrides the dashboard host.
-- `--dashboard-port` overrides the dashboard port.
+- `--dashboard` starts the terminal dashboard.
 
 ## VS Code Extension
 

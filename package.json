@@ -49,7 +49,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node ./scripts/CopyDashboardPage.mjs",
+    "build": "tsc -p tsconfig.json",
     "start": "tsx src/cli/Hodl.ts",
     "dev": "tsx watch src/cli/Hodl.ts",
     "prepack": "npm run build",
@@ -59,10 +59,13 @@
     "test": "vitest run src/tests"
   },
   "dependencies": {
+    "ink": "^6.8.0",
+    "react": "^19.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^24.6.1",
+    "@types/react": "^19.2.14",
     "tsx": "^4.20.6",
     "typescript": "~5.9.2",
     "vitest": "^3.2.4"

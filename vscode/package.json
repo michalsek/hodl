@@ -22,11 +22,17 @@
     "Other"
   ],
   "keywords": [
-    "locks",
-    "lease",
+    "ai",
+    "agent",
+    "orchestration",
+    "workflow",
+    "codex",
+    "claude",
+    "lock",
+    "concurrency",
     "coordination",
-    "daemon",
-    "codex"
+    "vscode",
+    "LLM"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",

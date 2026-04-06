@@ -128,6 +128,11 @@ async function routeRequest(
     return;
   }
 
+  if (request.method === 'GET' && url.pathname === '/v1/locks') {
+    sendJson(response, 200, leaseManager.listActiveLocks());
+    return;
+  }
+
   if (request.method === 'POST' && url.pathname === '/v1/subscriptions') {
     const body = subscribeRequestSchema.parse(await readJsonBody(request));
     sendJson(response, 200, await leaseManager.createSubscription(body));
