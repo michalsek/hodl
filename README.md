@@ -1,8 +1,6 @@
-# hodl
+# agent-hodl
 
-`hodl` is a machine-wide local daemon that coordinates lease-based file locks using canonical absolute paths. It is the single source of truth for acquire, renew, release, status, and event delivery.
-
-The npm package is published as `agent-hodl`.
+`agent-hodl` is a machine-wide local daemon that coordinates lease-based file locks using canonical absolute paths. It is the single source of truth for acquire, renew, release, status, and event delivery.
 
 ## How To Use
 
