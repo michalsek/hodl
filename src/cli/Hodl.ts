@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { readFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
 
 import { createFileLockHttpServer } from '../ipc/HttpServer.js';
 import { SocketRuntime } from '../ipc/SocketRuntime.js';
@@ -103,12 +102,10 @@ async function main(): Promise<void> {
   await runHodl(process.argv.slice(2));
 }
 
-if (isDirectExecution()) {
-  void main().catch((error) => {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exit(1);
-  });
-}
+void main().catch((error) => {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+});
 
 function printHelp(): void {
   console.log(getHelpText());
@@ -161,14 +158,4 @@ function readOptionalFlag(argv: string[], flagName: string): string | undefined 
   }
 
   return argv[flagIndex + 1];
-}
-
-function isDirectExecution(): boolean {
-  const entrypoint = process.argv[1];
-
-  if (entrypoint == null) {
-    return false;
-  }
-
-  return import.meta.url === pathToFileURL(entrypoint).href;
 }
