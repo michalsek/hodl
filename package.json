@@ -1,11 +1,31 @@
 {
-  "name": "hodl",
+  "name": "agent-hodl",
   "version": "0.1.0",
   "type": "module",
+  "license": "MIT",
+  "author": "Michal Sek (https://github.com/michalsek)",
+  "homepage": "https://github.com/michalsek/hodl",
+  "keywords": [
+    "ai",
+    "agent",
+    "orchestration",
+    "workflow",
+    "codex",
+    "claude",
+    "lock",
+    "concurrency",
+    "coordination",
+    "vscode",
+    "LLM"
+  ],
   "description": "Machine-wide local file lock daemon for lease-based coordination on macOS.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/michalsek/hodl.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "exports": {
     ".": {
@@ -19,6 +39,8 @@
   },
   "types": "./dist/index.d.ts",
   "bin": {
+    "agent-hodl": "./dist/cli/Hodl.js",
+    "agent-hodlctl": "./dist/cli/Hodlctl.js",
     "hodl": "./dist/cli/Hodl.js",
     "hodlctl": "./dist/cli/Hodlctl.js"
   },
@@ -30,6 +52,9 @@
     "build": "tsc -p tsconfig.json && node ./scripts/CopyDashboardPage.mjs",
     "start": "tsx src/cli/Hodl.ts",
     "dev": "tsx watch src/cli/Hodl.ts",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run typecheck && npm run test && npm pack --dry-run",
+    "publish:npm": "npm publish",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run src/tests"
   },

@@ -1,8 +1,7 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "lib": ["ES2022"],
     "types": ["node", "vscode", "vitest/globals"],
     "rootDir": "src",
     "outDir": "dist",
