@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+
 import { createFileLockHttpServer } from '../ipc/HttpServer.js';
 import { SocketRuntime } from '../ipc/SocketRuntime.js';
 import { LeaseManager } from '../daemon/LeaseManager.js';
@@ -7,12 +10,18 @@ import { ExpiryLoop } from '../daemon/ExpiryLoop.js';
 import { runInkDashboard } from '../dashboard/InkDashboard.js';
 import { runHodlctl } from './Hodlctl.js';
 
-async function main(): Promise<void> {
-  const argv = process.argv.slice(2);
+let cachedPackageVersion: string | undefined;
+
+export async function runHodl(argv: string[]): Promise<void> {
   const command = argv[0];
 
   if (command === 'help' || command === '--help' || command === '-h') {
     printHelp();
+    return;
+  }
+
+  if (command === 'version' || command === '--version' || command === '-v') {
+    printVersion();
     return;
   }
 
@@ -90,13 +99,39 @@ async function main(): Promise<void> {
   });
 }
 
-void main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-});
+async function main(): Promise<void> {
+  await runHodl(process.argv.slice(2));
+}
+
+if (isDirectExecution()) {
+  void main().catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  });
+}
 
 function printHelp(): void {
   console.log(getHelpText());
+}
+
+function printVersion(): void {
+  console.log(getPackageVersion());
+}
+
+export function getPackageVersion(): string {
+  if (cachedPackageVersion == null) {
+    const packageJson = JSON.parse(
+      readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+    ) as { version?: string };
+
+    if (packageJson.version == null || packageJson.version.length === 0) {
+      throw new Error('Package version is missing.');
+    }
+
+    cachedPackageVersion = packageJson.version;
+  }
+
+  return cachedPackageVersion;
 }
 
 function getHelpText(): string {
@@ -104,11 +139,13 @@ function getHelpText(): string {
     'Usage:',
     '  agent-hodl',
     '  agent-hodl help',
+    '  agent-hodl version',
     '  agent-hodl ctl <command> [options]',
     '',
     'Commands:',
     '  ctl           Run the control client commands.',
     '  help          Show this help message.',
+    '  version       Show the package version.',
     '',
     'Daemon Options:',
     '  --socket-path <path>      Override the Unix socket path.',
@@ -124,4 +161,14 @@ function readOptionalFlag(argv: string[], flagName: string): string | undefined 
   }
 
   return argv[flagIndex + 1];
+}
+
+function isDirectExecution(): boolean {
+  const entrypoint = process.argv[1];
+
+  if (entrypoint == null) {
+    return false;
+  }
+
+  return import.meta.url === pathToFileURL(entrypoint).href;
 }
